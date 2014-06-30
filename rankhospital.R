@@ -23,23 +23,30 @@ rankhospital <- function(state, outcome, num = "best") {
   # no sense in reading the data before we might need it
   outcomedata <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
   
-  
-  ## Return hospital name in that state with lowest 30-day death
-  ## rate for the outcome requested
-  ## Hospital name is column 2
-  ## State is column 7
-  
   ## take the subset for the state we want
   statedata <- outcomedata[which(outcomedata$State==state),]
   ## coerce to numeric since we read is as a string
   statedata[,column] <- as.numeric(statedata[,column])
   ## sort based on state column
-  sortedstate <- statedata[order(statedata[,column]),]
+  sortedstate <- statedata[order(statedata[,column], statedata[,2],na.last=NA),]
   
-  head (sortedstate[1,2])
+  ## now we can deal with the outcoming ranking
+  if (num == "best") {
+      rank <- 1
+  } else if (num == "worst") {
+      rank <- nrow(sortedstate)
+  } else {
+      rank <- as.numeric(num)
+  }
   
-  ## Read outcome data
-  ## Check that state and outcome are valid
-  ## Return hospital name in that state with the given rank
-  ## 30-day death rate
+  ## is rank > the actual number of outcomes we have?
+  if (rank > nrow(sortedstate)) {
+      return (NA)
+  } else {
+      return(sortedstate[rank,2])
+      
+  }
+  
+  
+  
 }
